@@ -110,7 +110,7 @@ local function APL()
 
   -- Misc
   local BrewMaxCharge = 3 + (S.LightBrewing:IsAvailable() and 1 or 0);
-  local IronskinDuration = (6 + S.PotentKick:ArtifactRank() * 0.5);
+  local IronskinDuration = 7;
   local IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target);
 
   --- Defensives
