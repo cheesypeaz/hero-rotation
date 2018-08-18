@@ -298,10 +298,11 @@ local function APL()
   if not Player:AffectingCombat() and (not Player:IsCasting() or Player:IsCasting(S.WaterElemental)) then
     local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
   end
-  -- counterspell
-  if S.Counterspell:IsCastableP() and Settings.General.InterruptEnabled and Target:IsInterruptible() and (true) then
-    if HR.CastAnnotated(S.Counterspell, false, "Interrupt") then return ""; end
-  end
+
+-- counterspell - Interim solution provided just to comment out the spell until I have time to fix it properly. Busy with IRL work [09/08/2018 Glynny]
+--  if S.Counterspell:IsCastableP() and Settings.General.InterruptEnabled and Target:IsInterruptible() and (true) then
+--    if HR.CastAnnotated(S.Counterspell, false, "Interrupt") then return ""; end
+--  end
   -- ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
   if S.IceLance:IsCastableP() and (Player:PrevGCDP(1, S.Flurry) and not bool(Player:BuffStackP(S.FingersofFrostBuff))) then
     if HR.Cast(S.IceLance) then return ""; end
