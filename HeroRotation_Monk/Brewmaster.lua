@@ -103,6 +103,12 @@ local function ShouldPurify ()
   end
 end
 
+local function isCurrentlyTanking()
+  -- is player currently tanking any enemies within 16 yard radius
+  local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target);
+  return IsTanking;
+end
+
 --- ======= ACTION LISTS =======
 local function APL()
   -- Unit Update
