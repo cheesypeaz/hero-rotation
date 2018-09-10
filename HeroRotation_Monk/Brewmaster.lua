@@ -155,6 +155,11 @@ local function SingleTarget()
     if HR.Cast(S.TigerPalm) then return ""; end
   end
 
+  -- arcane_torrent,if=energy<31
+  if HR.CDsON() and S.ArcaneTorrent:IsCastableP() and Player:Energy() < 31 then
+    if HR.Cast(S.ArcaneTorrent, Settings.Brewmaster.OffGCDasOffGCD.ArcaneTorrent) then return ""; end
+  end
+
   -- Rushing Jade Wind (If talented)
   if S.RushingJadeWind:IsCastableP() then
     if HR.Cast(S.RushingJadeWind) then return ""; end
@@ -208,6 +213,11 @@ local function AOE()
     if HR.Cast(S.TigerPalm) then return ""; end
   end
 
+  -- arcane_torrent,if=energy<31
+  if HR.CDsON() and S.ArcaneTorrent:IsCastableP() and Player:Energy() < 31 then
+    if HR.Cast(S.ArcaneTorrent, Settings.Brewmaster.OffGCDasOffGCD.ArcaneTorrent) then return ""; end
+  end
+
   --Rushing Jade Wind (If talented and not active)
   if S.RushingJadeWind:IsCastableP() then
     if HR.Cast(S.RushingJadeWind) then return ""; end
@@ -246,6 +256,7 @@ local function APL()
   if S.IronskinBrew:IsCastableP() and Player:BuffP(S.BlackoutComboBuff) and Player:HealingAbsorbed() and ShouldPurify() then
     if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
   end
+
   -- black_ox_brew,if=cooldown.brews.charges_fractional<0.5
   if S.BlackOxBrew:IsCastableP() and S.Brews:ChargesFractional() <= 0.5 then
     if HR.Cast(S.BlackOxBrew, Settings.Brewmaster.OffGCDasOffGCD.BlackOxBrew) then return ""; end
@@ -265,15 +276,17 @@ local function APL()
   --- In Combat
   if Everyone.TargetIsValid() then
     -- black_ox_brew,if=(energy+(energy.regen*cooldown.keg_smash.remains))<40&buff.blackout_combo.down&cooldown.keg_smash.up
-    if S.BlackOxBrew:IsCastableP() and (Player:Energy() + (Player:EnergyRegen() * S.KegSmash:CooldownRemainsP())) < 40 and Player:BuffDownP(S.BlackoutComboBuff) and S.KegSmash:CooldownUpP() then
-      --if S.Brews:Charges() >= 2 and Player:StaggerPercentage() >= 1 then
-      --  HR.Cast(S.IronskinBrew, ForceOffGCD);
-      --  HR.Cast(S.PurifyingBrew, ForceOffGCD);
-      --  if HR.Cast(S.BlackOxBrew) then return ""; end
-      --else
-      --  if S.Brews:Charges() >= 1 then HR.Cast(S.IronskinBrew, ForceOffGCD); end
-      --  if HR.Cast(S.BlackOxBrew, Settings.Brewmaster.OffGCDasOffGCD.BlackOxBrew) then return ""; end
-      --end
+    if S.BlackOxBrew:IsCastableP() and 
+        (Player:Energy() + (Player:EnergyRegen() * S.KegSmash:CooldownRemainsP())) < 40 and 
+        Player:BuffDownP(S.BlackoutComboBuff) and 
+        S.KegSmash:CooldownUpP() then
+          -- This code prevents wastage of brews use cast queue HR.CastQueue(S.Spell1, S.Spell2)
+      if S.Brews:Charges() >= 2 and Player:StaggerPercentage() >= 1 then
+        HR.CastQueue(S.IronskinBrew, S.PurifyingBrew, S.BlackOxBrew)
+      else
+        if S.Brews:Charges() >= 1 then HR.Cast(S.IronskinBrew, ForceOffGCD); end
+        HR.CastQueue(S.IronskinBrew, S.BlackOxBrew)
+        end
     end
     -- potion
     if I.ProlongedPower:IsReady() and Settings.Commons.UsePotions then
