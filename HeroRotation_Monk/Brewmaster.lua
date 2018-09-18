@@ -279,10 +279,11 @@ local function APL()
     if S.BlackOxBrew:IsCastableP() and 
         (Player:Energy() + (Player:EnergyRegen() * S.KegSmash:CooldownRemainsP())) < 40 and 
         Player:BuffDownP(S.BlackoutComboBuff) and 
-        S.KegSmash:CooldownUpP() then
+        S.KegSmash:CooldownUpP() and
+        isCurrentlyTanking() then
           -- This code prevents wastage of brews use cast queue HR.CastQueue(S.Spell1, S.Spell2)
-      if S.Brews:Charges() >= 2 and Player:StaggerPercentage() >= 1 then
-        HR.CastQueue(S.IronskinBrew, S.PurifyingBrew, S.BlackOxBrew)
+      if S.Brews:Charges() >= 2 then
+        HR.CastQueue(S.IronskinBrew, S.PurifyingBrew, S.BlackOxBrew)  
       else
         if S.Brews:Charges() >= 1 then HR.Cast(S.IronskinBrew, ForceOffGCD); end
         HR.CastQueue(S.IronskinBrew, S.BlackOxBrew)
