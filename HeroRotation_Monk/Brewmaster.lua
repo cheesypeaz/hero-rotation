@@ -21,7 +21,7 @@ local HR     = HeroRotation
 -- Spells
 if not Spell.Monk then Spell.Monk = {} end
 Spell.Monk.Brewmaster = {
-  ArcaneTorrent                         = Spell(50613),
+  ArcaneTorrent                         = Spell(129597),
   Berserking                            = Spell(26297),
   BlackoutCombo                         = Spell(196736),
   BlackoutComboBuff                     = Spell(228563),
@@ -105,7 +105,7 @@ end
 
 local function isCurrentlyTanking()
   -- is player currently tanking any enemies within 16 yard radius
-  local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target);
+  local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target) or Settings.Brewmaster.MaintainISBAlways;
   return IsTanking;
 end
 
@@ -282,11 +282,11 @@ local function APL()
         S.KegSmash:CooldownUpP() and
         isCurrentlyTanking() then
           -- This code prevents wastage of brews use cast queue HR.CastQueue(S.Spell1, S.Spell2)
-      if S.Brews:Charges() >= 2 then
-        HR.CastQueue(S.IronskinBrew, S.PurifyingBrew, S.BlackOxBrew)  
+      if S.Brews:Charges() >= 2 and Player.StaggerPercentage() >= 1 then
+        return HR.CastQueue(S.IronskinBrew, S.PurifyingBrew, S.BlackOxBrew)  
       else
         if S.Brews:Charges() >= 1 then HR.Cast(S.IronskinBrew, ForceOffGCD); end
-        HR.CastQueue(S.IronskinBrew, S.BlackOxBrew)
+          return HR.CastQueue(S.IronskinBrew, S.BlackOxBrew)
         end
     end
     -- potion
