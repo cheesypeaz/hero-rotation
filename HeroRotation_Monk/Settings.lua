@@ -31,6 +31,10 @@
       }
     },
     Brewmaster = {
+      UsePotions = true,
+      MaintainISBAlways = true,
+      FocusOnDefense = true,
+
       -- Purify
       Purify = {
         Enabled = true,
@@ -87,3 +91,5 @@
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.Medium", "Purify: Medium", "Enable or disable Purify recommendations when the stagger is medium.");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.High", "Purify: High", "Enable or disable Purify recommendations when the stagger is high.");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.MaintainISBAlways", "Maintain ISB Always", "Maintain ISB When not tanking");
+  CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.FocusOnDefense", "Focus On Defensive Rotation when tanking", "Focus On Defensive Rotation when tanking");
+  CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.UsePotions", "Use Potions", "Use Potions with rotation");
