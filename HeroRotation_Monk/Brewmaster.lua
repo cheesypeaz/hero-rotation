@@ -140,6 +140,7 @@ end
 
 local function isCurrentlyTanking()
    -- is player currently tanking any enemies within 16 yard radius
+  local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target) or Settings.Brewmaster.MaintainISBAlways;
    return IsTanking;
 end
 
@@ -296,6 +297,7 @@ local function APL()
   if S.IronskinBrew:IsCastableP()
       and S.Brews:ChargesFractional() >= BrewMaxCharge - 0.1 - (Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 0.5 and 0.5 or 0)
       and Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 2
+      and IsTanking then
     if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
   end
 
