@@ -51,6 +51,7 @@ Spell.Monk.Brewmaster = {
   HeavyStagger                          = Spell(124273),
   ModerateStagger                       = Spell(124274),
   LightStagger                          = Spell(124275),
+  KegSmashDebuff                        = Spell(121253),
   -- Misc
   PoolEnergy                            = Spell(9999000010)
 };
@@ -70,6 +71,8 @@ local ForceOffGCD = {true, false};
 
 -- GUI Settings
 local Everyone = HR.Commons.Everyone;
+local IsbDuration = 7;
+
 local Settings = {
   General = HR.GUISettings.General,
   Commons = HR.GUISettings.APL.Monk.Commons,
@@ -78,18 +81,20 @@ local Settings = {
 
 -- Variables
 local BrewmasterToolsEnabled = BrewmasterTools and true or false;
-if not BrewmasterToolsEnabled then
-  HR.Print("Purifying disabled. You need Brewmaster Tools to enable it.");
+  if not BrewmasterToolsEnabled then
+    HR.Print("Purifying disabled. You need Brewmaster Tools to enable it.");
 end
 
 local function ShouldPurify ()
   if not BrewmasterToolsEnabled or not Settings.Brewmaster.Purify.Enabled then
     return false;
   end
+
   local NormalizedStagger = BrewmasterTools.GetNormalStagger();
   local NextStaggerTick = BrewmasterTools.GetNextTick();
   local NStaggerPct = NextStaggerTick > 0 and NextStaggerTick/Player:MaxHealth() or 0;
   local ProgressPct = NormalizedStagger > 0 and Player:Stagger()/NormalizedStagger or 0;
+  
   if NStaggerPct > 0.015 and ProgressPct > 0 then
     if NStaggerPct <= 0.03 then -- Yellow (> 80%)
       return Settings.Brewmaster.Purify.Low and ProgressPct > 0.8 or false;
@@ -103,10 +108,40 @@ local function ShouldPurify ()
   end
 end
 
+local function HaveFreePurify()
+  local freePurify = false;
+
+  if not BrewmasterToolsEnabled or not Settings.Brewmaster.Purify.Enabled then
+    return false;
+  end
+
+  local NormalizedStagger = BrewmasterTools.GetNormalStagger();
+  local NextStaggerTick = BrewmasterTools.GetNextTick();
+  local NStaggerPct = NextStaggerTick > 0 and NextStaggerTick/Player:MaxHealth() or 0;
+  local ProgressPct = NormalizedStagger > 0 and Player:Stagger()/NormalizedStagger or 0;
+
+  if NStaggerPct > 0.015 and ProgressPct > 0 then
+    if NStaggerPct <= 0.03 then -- Yellow (> 80%)
+      local BrewMaxCharge = 3 + (S.LightBrewing:IsAvailable() and 1 or 0);
+      local remainingIsbBuff = Player:BuffRemains(S.IronskinBrewBuff);
+      local nextChargeAvailable = S.Brews:RechargeP();
+
+      -- if i have more than 2 full charges and a new charge is going to become available before the expiry of current isb buff
+      freePurify = (S.Brews:ChargesFractional() > 2) and (remainingIsbBuff >= nextChargeAvailable);
+
+      if freePurify then
+        print("free purify isb remain:" .. remainingIsbBuff .. " next charge:" .. nextChargeAvailable .. "current charges:" ..  S.Brews:ChargesFractional())
+      end
+    end
+  end
+
+  return freePurify;
+end
+
 local function isCurrentlyTanking()
-  -- is player currently tanking any enemies within 16 yard radius
-  local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target) or Settings.Brewmaster.MaintainISBAlways;
-  return IsTanking;
+   -- is player currently tanking any enemies within 16 yard radius
+   local IsTanking = Player:IsTankingAoE(16) or Player:IsTanking(Target);
+   return IsTanking;
 end
 
 --- ======= ACTION LISTS =======
@@ -119,7 +154,24 @@ local function SingleTarget()
 
   -- Keg Smash
   if S.KegSmash:IsCastableP(25) then
-    if HR.Cast(S.KegSmash) then return ""; end
+    if isCurrentlyTanking() then
+      -- When focusing on defense we will save KS when BoF is about to come of 
+      -- CD so we get maximum up time with BoF DR debuff on target
+      if Settings.Brewmaster.FocusOnDefense then
+        if S.BreathofFire:CooldownUp() or (S.BreathofFire:CooldownRemainsP() >= S.KegSmash:Cooldown()) then
+          if HR.Cast(S.KegSmash) then return ""; end
+        end
+      else 
+        if HR.Cast(S.KegSmash) then return ""; end
+      end
+    else
+      if HR.Cast(S.KegSmash) then return ""; end
+    end
+  end
+
+  -- Breath of Fire - FocusOnDefenses
+  if S.BreathofFire:IsCastableP(10, true) and isCurrentlyTanking() and  Settings.Brewmaster.FocusOnDefense and Target:Debuff(S.KegSmashDebuff) then
+    if HR.Cast(S.BreathofFire) then return ""; end
   end
 
   -- Tiger Palm (If the Blackout Combo buff is active)
@@ -234,7 +286,7 @@ local function APL()
 
   -- Misc
   local BrewMaxCharge = 3 + (S.LightBrewing:IsAvailable() and 1 or 0);
-  local IronskinDuration = 7;
+  local IronskinDuration = IsbDuration;
   local IsTanking = isCurrentlyTanking();
 
   --- Defensives
@@ -245,13 +297,19 @@ local function APL()
   if S.IronskinBrew:IsCastableP()
       and S.Brews:ChargesFractional() >= BrewMaxCharge - 0.1 - (Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 0.5 and 0.5 or 0)
       and Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 2
-      and IsTanking then
+      and (IsTanking or Settings.Brewmaster.MaintainISBAlways) then
     if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
   end
+
+  if HaveFreePurify() then
+    HR.CastLeft(S.PurifyingBrew);
+  end
+
   -- purifying_brew,if=stagger.pct>(6*(3-(cooldown.brews.charges_fractional)))&(stagger.last_tick_damage_1>((0.02+0.001*(3-cooldown.brews.charges_fractional))*stagger.last_tick_damage_30))
   if S.PurifyingBrew:IsCastableP() and ShouldPurify() then
     if HR.Cast(S.PurifyingBrew, Settings.Brewmaster.OffGCDasOffGCD.PurifyingBrew) then return ""; end
   end
+
   -- BlackoutCombo Stagger Pause w/ Ironskin Brew
   if S.IronskinBrew:IsCastableP() and Player:BuffP(S.BlackoutComboBuff) and Player:HealingAbsorbed() and ShouldPurify() then
     if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
@@ -265,12 +323,12 @@ local function APL()
   --- Out of Combat
   if not Player:AffectingCombat() and Everyone.TargetIsValid() then
     -- potion
-    if I.ProlongedPower:IsReady() and Settings.Commons.UsePotions and (true) then
+    if I.ProlongedPower:IsReady() and Settings.Brewmaster.UsePotions and (true) then
       if HR.CastSuggested(I.ProlongedPower) then return ""; end
     end
---    if I.BattlePotionOfAgility:IsReady() and Settings.Commons.UsePotions and (true) then
---      if HR.CastSuggested(I.BattlePotionOfAgility) then return ""; end
---    end
+    if I.BattlePotionOfAgility:IsReady() and Settings.Brewmaster.UsePotions and (true) then
+      if HR.CastSuggested(I.BattlePotionOfAgility) then return ""; end
+    end
   end
 
   --- In Combat
@@ -290,12 +348,13 @@ local function APL()
         end
     end
     -- potion
-    if I.ProlongedPower:IsReady() and Settings.Commons.UsePotions then
+    if I.ProlongedPower:IsReady() and Settings.Brewmaster.UsePotions then
       if HR.CastSuggested(I.ProlongedPower) then return ""; end
     end
---    if I.ProlongeBattlePotionOfAgilitydPower:IsReady() and Settings.Commons.UsePotions then
---      if HR.CastSuggested(I.BattlePotionOfAgility) then return ""; end
---    end
+
+    if I.BattlePotionOfAgility:IsReady() and Settings.Brewmaster.UsePotions then
+        if HR.CastSuggested(I.BattlePotionOfAgility) then return ""; end
+    end
     -- blood_fury
     if S.BloodFury:IsCastableP() and HR.CDsON() then
       if HR.Cast(S.BloodFury, Settings.Brewmaster.OffGCDasOffGCD.BloodFury) then return ""; end
