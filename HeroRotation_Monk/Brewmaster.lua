@@ -120,18 +120,13 @@ local function HaveFreePurify()
   local NStaggerPct = NextStaggerTick > 0 and NextStaggerTick/Player:MaxHealth() or 0;
   local ProgressPct = NormalizedStagger > 0 and Player:Stagger()/NormalizedStagger or 0;
 
+  local BrewMaxCharge = 3 + (S.LightBrewing:IsAvailable() and 1 or 0);
+  local remainingIsbBuff = Player:BuffRemains(S.IronskinBrewBuff);
+  local nextChargeAvailable = S.Brews:RechargeP();
+
   if NStaggerPct > 0.015 and ProgressPct > 0 then
-    if NStaggerPct <= 0.03 then -- Yellow (> 80%)
-      local BrewMaxCharge = 3 + (S.LightBrewing:IsAvailable() and 1 or 0);
-      local remainingIsbBuff = Player:BuffRemains(S.IronskinBrewBuff);
-      local nextChargeAvailable = S.Brews:RechargeP();
-
-      -- if i have more than 2 full charges and a new charge is going to become available before the expiry of current isb buff
+    if NStaggerPct <= 0.05 and ProgressPct > 0.7 then -- Orange (> 70%)
       freePurify = (S.Brews:ChargesFractional() > 2) and (remainingIsbBuff >= nextChargeAvailable);
-
-      if freePurify then
-        print("free purify isb remain:" .. remainingIsbBuff .. " next charge:" .. nextChargeAvailable .. "current charges:" ..  S.Brews:ChargesFractional())
-      end
     end
   end
 
