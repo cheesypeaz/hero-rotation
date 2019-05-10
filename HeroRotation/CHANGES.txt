@@ -1,0 +1,16 @@
+lightweight tag d061210cffc6ab58b56061460bdfe65164a72a3b 8.0.1.01b
+Author:	Quentin Giraud <dev@aethys.io>
+Date:	Tue Jul 17 22:48:18 2018 +0200
+
+commit d061210cffc6ab58b56061460bdfe65164a72a3b
+Author: Quentin Giraud <dev@aethys.io>
+Date:   Tue Jul 17 22:48:18 2018 +0200
+
+    Another fix to .pkgmeta
+
+commit a88b59e645d5f8771930bcefb9fcef5ef30421c1
+Author: Quentin Giraud <dev@aethys.io>
+Date:   Tue Jul 17 22:44:44 2018 +0200
+
+    Fix .pkgmeta
+

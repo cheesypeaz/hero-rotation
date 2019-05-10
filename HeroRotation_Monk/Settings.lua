@@ -24,13 +24,19 @@
       },
       -- {Display OffGCD as OffGCD, ForceReturn}
       OffGCDasOffGCD = {
+        --Trinkets
+        Trinkets               = true,
         -- Racials
-        Racials = true,
+        Racials                = true,
         -- Abilities
         SpearHandStrike = true,
       }
     },
     Brewmaster = {
+      UsePotions = true,
+      MaintainISBAlways = true,
+      FocusOnDefense = true,
+
       -- Purify
       Purify = {
         Enabled = true,
@@ -46,7 +52,7 @@
       -- {Display OffGCD as OffGCD, ForceReturn}
       OffGCDasOffGCD = {
         -- Racials
-
+        ArcaneTorrent          = true,
         -- Abilities
         BlackOxBrew            = true,
         IronskinBrew           = true,
@@ -64,7 +70,7 @@
       -- {Display OffGCD as OffGCD, ForceReturn}
       OffGCDasOffGCD = {
         -- Racials
-
+        ArcaneTorrent = true
         -- Abilities
       }
     }
@@ -80,9 +86,12 @@
   CreateARPanelOptions(CP_Monk, "APL.Monk.Commons");
   -- Windwalker
   CreateARPanelOptions(CP_Windwalker, "APL.Monk.Windwalker");
-  -- Windwalker
+  -- BrewMaster
   CreateARPanelOptions(CP_Brewmaster, "APL.Monk.Brewmaster");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.Enabled", "Purify", "Enable or disable Purify recommendations.");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.Low", "Purify: Low", "Enable or disable Purify recommendations when the stagger is low.");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.Medium", "Purify: Medium", "Enable or disable Purify recommendations when the stagger is medium.");
   CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.Purify.High", "Purify: High", "Enable or disable Purify recommendations when the stagger is high.");
+  CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.MaintainISBAlways", "Maintain ISB Always", "Maintain ISB When not tanking");
+  CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.FocusOnDefense", "Focus On Defensive Rotation when tanking", "Focus On Defensive Rotation when tanking");
+  CreatePanelOption("CheckButton", CP_Brewmaster, "APL.Monk.Brewmaster.UsePotions", "Use Potions", "Use Potions with rotation");

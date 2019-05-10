@@ -273,7 +273,8 @@
     self:SetFrameLevel(HR.MainFrame:GetFrameLevel() - 1);
     self:SetWidth(64);
     self:SetHeight(32);
-    self:SetPoint("BOTTOMLEFT", HR.MainIconFrame, "TOPLEFT", 0, HR.GUISettings.General.BlackBorderIcon and 1 or 0);
+    --HR.GUISettings.General.BlackBorderIcon and 1 or 0
+    self:SetPoint("BOTTOMLEFT", HR.MainIconFrame, "TOPLEFT", 0, 20);
 
     -- Frames
     self.Icon = {};
