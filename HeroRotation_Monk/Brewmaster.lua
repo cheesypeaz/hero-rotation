@@ -52,8 +52,9 @@ Spell.Monk.Brewmaster = {
   ModerateStagger                       = Spell(124274),
   LightStagger                          = Spell(124275),
   KegSmashDebuff                        = Spell(121253),
+  VariableIntensityGigavoltOscillatingReactorBuff = Spell(287916),
   -- Misc
-  PoolEnergy                            = Spell(9999000010)
+  PoolEnergy                            = Spell(9999000010),
 };
 local S = Spell.Monk.Brewmaster;
 
@@ -62,6 +63,8 @@ if not Item.Monk then Item.Monk = {} end
 Item.Monk.Brewmaster = {
   ProlongedPower        = Item(142117),
   BattlePotionOfAgility = Item(163223),
+  -- Trinkets
+  VariableIntensityGigavoltOscillatingReactor = Item(165572),
 };
 local I = Item.Monk.Brewmaster;
 
@@ -126,7 +129,7 @@ local function HaveFreePurify()
 
   if NStaggerPct > 0.015 and ProgressPct > 0 then
     if NStaggerPct <= 0.05 and ProgressPct > 0.7 then -- Orange (> 70%)
-      freePurify = (S.Brews:ChargesFractional() > 2) and (remainingIsbBuff >= nextChargeAvailable);
+      freePurify = (S.Brews:ChargesFractional() > 3) and (remainingIsbBuff >= nextChargeAvailable);
     end
   end
 
@@ -141,7 +144,13 @@ end
 
 --- ======= ACTION LISTS =======
 
-local function SingleTarget() 
+local function SingleTarget()
+  
+  -- Tiger Palm (If the Blackout Combo buff is active)
+  if S.TigerPalm:IsCastableP("Melee") and Player:BuffP(S.BlackoutComboBuff) then
+    if HR.Cast(S.TigerPalm) then return ""; end
+  end
+
   -- Blackout Strike
   if S.BlackoutStrike:IsCastableP("Melee") then
     if HR.Cast(S.BlackoutStrike) then return ""; end
@@ -169,21 +178,14 @@ local function SingleTarget()
     if HR.Cast(S.BreathofFire) then return ""; end
   end
 
-  -- Tiger Palm (If the Blackout Combo buff is active)
-  if S.TigerPalm:IsCastableP("Melee") and Player:BuffP(S.BlackoutComboBuff) then
-    if HR.Cast(S.TigerPalm) then return ""; end
+  -- Rushing Jade Wind (If talented and not active)
+  if S.RushingJadeWind:IsCastableP() and Player:BuffDownP(S.RushingJadeWind) then
+    if HR.Cast(S.RushingJadeWind) then return ""; end
   end
 
   -- Breath of Fire
   if S.BreathofFire:IsCastableP(10, true)  then
     if HR.Cast(S.BreathofFire) then return ""; end
-  end
-
-  -- Tiger Palm (If capped or about to cap on energy)
-
-  -- Rushing Jade Wind (If talented and not active)
-  if S.RushingJadeWind:IsCastableP() and Player:BuffDownP(S.RushingJadeWind) then
-    if HR.Cast(S.RushingJadeWind) then return ""; end
   end
 
   -- Chi Burst (if talented)
@@ -196,7 +198,7 @@ local function SingleTarget()
     if HR.Cast(S.ChiWave) then return ""; end
   end
 
-  -- Tiger Palm (If energy > 55)
+  -- Tiger Palm (If energy > 65)
   -- tiger_palm,if=!talent.blackout_combo.enabled&cooldown.keg_smash.remains>gcd&(energy+(energy.regen*(cooldown.keg_smash.remains+gcd)))>=65
   if S.TigerPalm:IsCastableP("Melee") and (not S.BlackoutCombo:IsAvailable() and S.KegSmash:CooldownRemainsP() > Player:GCD() and (Player:Energy() + (Player:EnergyRegen() * (S.KegSmash:CooldownRemainsP() + Player:GCD()))) >= 65) then
     if HR.Cast(S.TigerPalm) then return ""; end
@@ -350,6 +352,13 @@ local function APL()
     if I.BattlePotionOfAgility:IsReady() and Settings.Brewmaster.UsePotions then
         if HR.CastSuggested(I.BattlePotionOfAgility) then return ""; end
     end
+
+    -- trinkets
+    -- use_item,name=VariableIntensityGigavoltOscillatingReactor
+    if I.VariableIntensityGigavoltOscillatingReactor:IsReady() and Player:BuffStack(S.VariableIntensityGigavoltOscillatingReactorBuff) >= 6 then
+      if HR.Cast(I.VariableIntensityGigavoltOscillatingReactor, Settings.Commons.OffGCDasOffGCD.Trinkets) then return ""; end
+    end
+
     -- blood_fury
     if S.BloodFury:IsCastableP() and HR.CDsON() then
       if HR.Cast(S.BloodFury, Settings.Brewmaster.OffGCDasOffGCD.BloodFury) then return ""; end

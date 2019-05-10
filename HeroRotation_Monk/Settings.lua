@@ -24,8 +24,10 @@
       },
       -- {Display OffGCD as OffGCD, ForceReturn}
       OffGCDasOffGCD = {
+        --Trinkets
+        Trinkets               = true,
         -- Racials
-        Racials = true,
+        Racials                = true,
         -- Abilities
 
       }
