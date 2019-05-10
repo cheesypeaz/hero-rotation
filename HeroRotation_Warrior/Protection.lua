@@ -157,7 +157,8 @@ local function APL()
   Defensive = function()
     if S.ShieldBlock:IsReadyP() and (((not Player:Buff(S.ShieldBlockBuff)) or Player:BuffRemains(S.ShieldBlockBuff) <= gcdTime + (gcdTime * 0.5)) and 
       (not Player:Buff(S.LastStandBuff)) and Player:Rage() >= 30) then
-        if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block defensive" end
+        --if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block defensive" end
+        HR.CastLeft(S.ShieldBlock);
     end
     if S.LastStand:IsCastableP() and ((not Player:Buff(S.ShieldBlockBuff)) and Settings.Protection.UseLastStandToFillShieldBlockDownTime
       and S.ShieldBlock:RechargeP() > (gcdTime * 2)) then
@@ -187,7 +188,8 @@ local function APL()
     end
     -- shield_block,if=cooldown.shield_slam.ready&buff.shield_block.down
     if S.ShieldBlock:IsReadyP() and (S.ShieldSlam:CooldownUpP() and Player:BuffDownP(S.ShieldBlockBuff) and offensiveShieldBlock()) then
-      if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 18"; end
+      --if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 18"; end
+      HR.CastLeft(S.ShieldBlock);
     end
     -- shield_slam
     if S.ShieldSlam:IsCastableP() then
@@ -205,7 +207,8 @@ local function APL()
     end
     -- shield_block,if=cooldown.shield_slam.ready&buff.shield_block.down&azerite.brace_for_impact.rank>azerite.deafening_crash.rank&buff.avatar.up
     if S.ShieldBlock:IsReadyP() and (S.ShieldSlam:CooldownUpP() and Player:BuffDownP(S.ShieldBlockBuff) and S.BraceForImpact:AzeriteRank() > S.DeafeningCrash:AzeriteRank() and Player:BuffP(S.AvatarBuff) and offensiveShieldBlock()) then
-      if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 32"; end
+      --if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 32"; end
+      HR.CastLeft(S.ShieldBlock);
     end
     -- shield_slam,if=azerite.brace_for_impact.rank>azerite.deafening_crash.rank&buff.avatar.up&buff.shield_block.up
     if S.ShieldSlam:IsCastableP() and (S.BraceForImpact:AzeriteRank() > S.DeafeningCrash:AzeriteRank() and Player:BuffP(S.AvatarBuff) and Player:BuffP(S.ShieldBlockBuff)) then
@@ -221,7 +224,8 @@ local function APL()
     end
     -- shield_block,if=cooldown.shield_slam.ready&buff.shield_block.down
     if S.ShieldBlock:IsReadyP() and (S.ShieldSlam:CooldownUpP() and Player:BuffDownP(S.ShieldBlockBuff) and offensiveShieldBlock()) then
-      if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 64"; end
+      --if HR.Cast(S.ShieldBlock, Settings.Protection.OffGCDasOffGCD.ShieldBlock) then return "shield_block 64"; end
+      HR.CastLeft(S.ShieldBlock);
     end
     -- shield_slam
     if S.ShieldSlam:IsCastableP() then
