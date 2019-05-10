@@ -54,6 +54,8 @@ Spell.Monk.Brewmaster = {
   LightStagger                          = Spell(124275),
   KegSmashDebuff                        = Spell(121253),
   VariableIntensityGigavoltOscillatingReactorBuff = Spell(287916),
+  
+
   -- Misc
   PoolEnergy                            = Spell(9999000010),
 };
@@ -66,6 +68,7 @@ Item.Monk.Brewmaster = {
   BattlePotionOfAgility = Item(163223),
   -- Trinkets
   VariableIntensityGigavoltOscillatingReactor = Item(165572),
+  InvocationOfYulon                     = Item(165568),
 };
 local I = Item.Monk.Brewmaster;
 
@@ -296,7 +299,8 @@ local function APL()
       and S.Brews:ChargesFractional() >= BrewMaxCharge - 0.1 - (Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 0.5 and 0.5 or 0)
       and Player:BuffRemains(S.IronskinBrewBuff) <= IronskinDuration * 2
       and IsTanking then
-    if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
+    HR.CastLeft(S.IronskinBrew);
+    --if HR.Cast(S.IronskinBrew, Settings.Brewmaster.OffGCDasOffGCD.IronskinBrew) then return ""; end
   end
 
   if HaveFreePurify() then
@@ -360,6 +364,12 @@ local function APL()
     -- use_item,name=VariableIntensityGigavoltOscillatingReactor
     if I.VariableIntensityGigavoltOscillatingReactor:IsReady() and Player:BuffStack(S.VariableIntensityGigavoltOscillatingReactorBuff) >= 6 then
       if HR.Cast(I.VariableIntensityGigavoltOscillatingReactor, Settings.Commons.OffGCDasOffGCD.Trinkets) then return ""; end
+    end
+
+    -- use_item,name=InvocationOfYulon
+    if I.InvocationOfYulon:IsReady() then
+      --HR.CastLeft(I.InvocationOfYulon);
+      if HR.Cast(I.InvocationOfYulon, Settings.Commons.OffGCDasOffGCD.Trinkets) then return ""; end
     end
 
     -- blood_fury
